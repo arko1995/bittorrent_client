@@ -12,5 +12,14 @@ const tracker = Buffer.from(torrent.announce).toString("utf8");
 
 const url = new URL(tracker);
 
-console.log(tracker);
-console.log(url);
+const socket = dgram.createSocket("udp4");
+
+const myMsg = Buffer.from("hello", "utf8");
+
+socket.send(myMsg, 0, myMsg.length, url.port, url.hostname, (err) => {
+  console.log(err);
+});
+
+socket.on("message", (msg) => {
+  console.log("message is ", msg);
+});
