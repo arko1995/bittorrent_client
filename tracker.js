@@ -52,16 +52,27 @@ function buildAnnounceReq(connId, torrent, port = 6881) {
   connId.copy(buf, 0);
 
   buf.writeUInt32BE(1, 8);
+
   crypto.randomBytes(4).copy(buf, 12);
+
   torrentParser.infoHash(torrent).copy(buf, 16);
+
   util.genId().copy(buf, 36);
+
   Buffer.alloc(8).copy(buf, 56);
+
   torrentParser.size(torrent).copy(buf, 64);
+
   Buffer.alloc(8).copy(buf, 72);
+
   buf.writeUint32BE(0, 80);
+
   buf.writeUint32BE(0, 80);
+
   crypto.randomBytes(4).copy(buf, 88);
+
   buf.writeUint32BE(-1, 92);
+
   buf.writeUint16BE(port, 96);
 
   return buf;
