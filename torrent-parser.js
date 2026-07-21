@@ -8,8 +8,9 @@ export const open = (filepath) => {
 
 export const size = (torrent) => {
   const size = torrent.info.files
-    ? torrent.info.files.map((file) =>
-        file.length.reduce((total, file) => total + BigInt(file.length), 0n),
+    ? torrent.info.files.reduce(
+        (total, file) => total + BigInt(file.length),
+        0n,
       )
     : BigInt(torrent.info.length);
 
