@@ -6,7 +6,17 @@ export const open = (filepath) => {
   return bencode.decode(fs.readFileSync(filepath));
 };
 
-export const size = (torrent) => {};
+export const size = (torrent) => {
+  const size = torrent.info.files
+    ? torrent.info.files.map((file) =>
+        file.length.reduce((total, file) => total + BigInt(file.length), 0n),
+      )
+    : BigInt(torrent.info.length);
+
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigUInt64BE(size);
+  return buffer;
+};
 
 export const infoHash = (torrent) => {
   const info = bencode.encode(torrent.info);
