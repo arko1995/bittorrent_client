@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import bencode from "bencode";
 import dgram from "node:dgram";
-import { getPeers } from "./tracker.js";
+import { getPeers } from "./src/tracker.js";
 import { Buffer } from "buffer";
-import * as torrentParser from "./torrent-parser.js";
+import * as torrentParser from "./src/torrent-parser.js";
 
 const torrent = torrentParser.open(
-  "lib/peter-thomas-ZIfKCrvR81I-unsplash.jpg.torrent",
+  "lib/The Bureau XCOM Declassified - [DODI Repack].torrent",
 );
 
 getPeers(torrent, (peers) => {
