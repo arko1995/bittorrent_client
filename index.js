@@ -6,9 +6,7 @@ import { Buffer } from "buffer";
 import * as torrentParser from "./src/torrent-parser.js";
 import * as download from "./src/download.js";
 
-const torrent = torrentParser.open(
-  "lib/The Bureau XCOM Declassified - [DODI Repack].torrent",
-);
+const torrent = torrentParser.open(process.argv[2]);
 
 download(torrent);
 
