@@ -101,3 +101,44 @@ export const buildRequest = (payload) => {
 
   return buf;
 };
+
+export const buildPiece = (payload) => {
+  const buf = Buffer.alloc(payload.block.length + 13);
+  //length
+  buf.writeInt32BE(payload.block.length + 9, 0);
+  //id
+  buf.writeInt8(7, 4);
+
+  buf.writeInt32BE(payload.index, 5);
+  buf.writeInt32BE(payload.begin, 9);
+
+  payload.copy(buf, 13);
+
+  return buf;
+};
+
+export const buildCancel = (payload) => {
+  const buf = Buffer.alloc(17);
+  //length
+  buf.writeInt32BE(13, 0);
+  //id
+  buf.writeInt8(8, 4);
+  buf.writeInt32BE(payload.index, 5);
+  buf.writeInt32BE(payload.begin, 9);
+  buf.writeInt32BE(payload.length, 13);
+
+  return buf;
+};
+
+export const buildPort = (payload) => {
+  const buf = Buffer.alloc(7);
+
+  //length
+  buf.writeInt32BE(3, 0);
+  //id
+  buf.writeInt8(9, 4);
+
+  buf.writeInt16BE(payload, 5);
+
+  return buf;
+};
