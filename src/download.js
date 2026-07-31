@@ -24,10 +24,12 @@ function onWholeMsg(socket, callback) {
 
   socket.on("data", (rcvBuf) => {
     const msglen = () => {
-      handShake ? savedBuff.readUInt8(0) + 49 : savedBuff.readInt32BE(0) + 4;
+      return handShake
+        ? savedBuff.readUInt8(0) + 49
+        : savedBuff.readInt32BE(0) + 4;
     };
 
-    Buffer.concat([savedBuff, rcvBuf]);
+    savedBuff = Buffer.concat([savedBuff, rcvBuf]);
 
     while (savedBuff.length >= 4 && savedBuff.length >= msglen()) {
       callback(savedBuff.slice(0, msglen()));
