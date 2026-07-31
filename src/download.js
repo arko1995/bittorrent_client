@@ -17,3 +17,22 @@ function download(peer) {
 
   socket.on("data", (data) => {});
 }
+
+function onWholeMsg(socket, callback) {
+  let savedBuff = Buffer.alloc(0);
+  let handShake = true;
+
+  socket.on("data", (rcvBuf) => {
+    const msglen = () => {
+      handShake ? savedBuff.readUInt8(0) + 49 : savedBuff.readInt32BE(0) + 4;
+    };
+
+    Buffer.concat([savedBuff, rcvBuf]);
+
+    while (savedBuff.length >= 4 && savedBuff.length >= msglen()) {
+      callback(savedBuff.slice(0, msglen()));
+      savedBuff = savedBuff.slice(msglen());
+      handShake = false;
+    }
+  });
+}
