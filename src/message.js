@@ -155,7 +155,7 @@ export const parse = (msg) => {
       begin: payload.readInt32BE(4),
     };
 
-    payload[id === 7 ? "block" : length] = rest;
+    payload[id === 7 ? "block" : "length"] = rest;
   }
 
   return {
