@@ -15,7 +15,7 @@ export const buildHandShake = (torrent) => {
   //info hash
   torrentParser.infoHash(torrent).copy(buf, 28);
 
-  buf.write(util.genId(), 48);
+  util.genId().copy(buf, 48);
 
   return buf;
 };
