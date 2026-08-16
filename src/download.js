@@ -4,12 +4,13 @@ import * as tracker from "./tracker.js";
 import * as message from "./message.js";
 
 export default (torrent) => {
+  const requested = [];
   tracker.getPeers(torrent, (peers) =>
-    peers.forEach((peer) => download(peer, torrent)),
+    peers.forEach((peer) => download(peer, torrent, requested)),
   );
 };
 
-function download(peer, torrent) {
+function download(peer, torrent, requested) {
   const socket = new net.Socket();
 
   socket.on("error", (error) => {
@@ -20,7 +21,7 @@ function download(peer, torrent) {
     socket.write(message.buildHandShake(torrent));
   });
 
-  onWholeMsg(socket, (msg) => msgHandler(msg, socket));
+  onWholeMsg(socket, (msg) => msgHandler(msg, socket, requested));
 
   socket.on("data", (data) => {});
 }
@@ -46,14 +47,14 @@ function onWholeMsg(socket, callback) {
   });
 }
 
-function msgHandler(msg, socket) {
+function msgHandler(msg, socket, requested) {
   if (isHandshake(msg)) socket.write(message.buildInterested());
   else {
     const m = message.parse(msg);
 
     if (m.id === 0) chokeHandler();
     if (m.id === 1) unChokeHandler();
-    if (m.id === 4) haveHandler(m.payload);
+    if (m.id === 4) haveHandler(m.payload, socket, requested);
     if (m.id === 5) bitfieldHandler(m.payload);
     if (m.id === 7) pieceHandler(m.payload);
   }
@@ -63,7 +64,14 @@ function chokeHandler() {}
 
 function unChokeHandler() {}
 
-function haveHandler(payload) {}
+function haveHandler(payload, socket, requested) {
+  const pieceIndex = payload.readUInt32BE(0);
+
+  if (!requested[pieceIndex]) {
+    socket.write(message.buildRequest());
+  }
+  requested[pieceIndex] = true;
+}
 
 function bitfieldHandler(payload) {}
 
