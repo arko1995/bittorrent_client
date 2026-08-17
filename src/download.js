@@ -12,7 +12,7 @@ export default (torrent) => {
 
 function download(peer, torrent, requested) {
   const socket = new net.Socket();
-
+  const queue = [];
   socket.on("error", (error) => {
     console.log(error);
   });
@@ -21,7 +21,7 @@ function download(peer, torrent, requested) {
     socket.write(message.buildHandShake(torrent));
   });
 
-  onWholeMsg(socket, (msg) => msgHandler(msg, socket, requested));
+  onWholeMsg(socket, (msg) => msgHandler(msg, socket, requested, queue));
 
   socket.on("data", (data) => {});
 }
@@ -47,15 +47,15 @@ function onWholeMsg(socket, callback) {
   });
 }
 
-function msgHandler(msg, socket, requested) {
+function msgHandler(msg, socket, requested, queue) {
   if (isHandshake(msg)) socket.write(message.buildInterested());
   else {
     const m = message.parse(msg);
 
     if (m.id === 0) chokeHandler();
     if (m.id === 1) unChokeHandler();
-    if (m.id === 4) haveHandler(m.payload, socket, requested);
-    if (m.id === 5) bitfieldHandler(m.payload);
+    if (m.id === 4) haveHandler(m.payload, socket, requested, queue);
+    if (m.id === 5) bitfieldHandler(m.payload, socket, requested, queue);
     if (m.id === 7) pieceHandler(m.payload);
   }
 }
@@ -64,18 +64,32 @@ function chokeHandler() {}
 
 function unChokeHandler() {}
 
-function haveHandler(payload, socket, requested) {
+function haveHandler(payload, socket, requested, queue) {
   const pieceIndex = payload.readUInt32BE(0);
-
   if (!requested[pieceIndex]) {
     socket.write(message.buildRequest());
   }
   requested[pieceIndex] = true;
+  queue.push(pieceIndex);
+  if (queue.length === 1) {
+    requestPiece(socket, requested, queue);
+  }
 }
 
 function bitfieldHandler(payload) {}
 
-function pieceHandler(payload) {}
+function pieceHandler(payload, socket, requested, queue) {
+  queue.shift();
+  requestPiece(socket, requested, queue);
+}
+
+function requestPiece(socket, requested, queue) {
+  if (requested[queue[0]]) {
+    queue.shift();
+  } else {
+    socket.write(message.buildRequest(pieceIndex));
+  }
+}
 
 function isHandshake(msg) {
   return (
