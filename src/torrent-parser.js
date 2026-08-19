@@ -23,3 +23,22 @@ export const infoHash = (torrent) => {
   const info = bencode.encode(torrent.info);
   return crypto.createHash("sha1").update(info).digest();
 };
+
+export const BLOCK_LEN = Math.pow(2, 14);
+
+/**
+ * 
+  calculating how many bytes the piece with pieceindex will contain
+  it checks what size the last piece needs to be since all pieces of a torrent contain same size, except the last piece may vary
+  piecelen function calculates the how many bytes the last piece of a torrent will contain
+ */
+
+export const pieceLen = (torrent, pieceIndex) => {
+  const totalLength = Number(size(torrent).readBigUint64BE());
+  const pieceLength = torrent.info["piece length"];
+
+  const lastPieceLength = totalLength % pieceLength;
+  const lastPieceIndex = Math.floor(totalLength / pieceLength);
+
+  return lastPieceIndex === pieceIndex ? lastPieceLength : pieceLength;
+};

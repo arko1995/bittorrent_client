@@ -24,8 +24,6 @@ function download(peer, torrent, pieces) {
 
   const queue = { choked: true, queue: [] };
   onWholeMsg(socket, (msg) => msgHandler(msg, socket, pieces, queue));
-
-  socket.on("data", (data) => {});
 }
 
 function onWholeMsg(socket, callback) {
@@ -42,8 +40,8 @@ function onWholeMsg(socket, callback) {
     savedBuff = Buffer.concat([savedBuff, rcvBuf]);
 
     while (savedBuff.length >= 4 && savedBuff.length >= msglen()) {
-      callback(savedBuff.slice(0, msglen()));
-      savedBuff = savedBuff.slice(msglen());
+      callback(savedBuff.subarray(0, msglen()));
+      savedBuff = savedBuff.subarray(msglen());
       handShake = false;
     }
   });
@@ -107,6 +105,6 @@ function requestPiece(socket, pieces, queue) {
 function isHandshake(msg) {
   return (
     msg.length === msg.readUInt8(0) + 49 &&
-    msg.toString("utf8", 1) === "BitTorrent protocol"
+    msg.toString("utf8", 1) === "BitTorrent protocol" //converts the entire bugger into string starting from offset 1
   );
 }
