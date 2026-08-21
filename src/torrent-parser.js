@@ -42,3 +42,17 @@ export const pieceLen = (torrent, pieceIndex) => {
 
   return lastPieceIndex === pieceIndex ? lastPieceLength : pieceLength;
 };
+
+export const blocksPerPiece = (torrent, pieceIndex) => {
+  const pieceLength = pieceLen(torrent, pieceIndex);
+
+  return Math.ceil(pieceLength, BLOCK_LEN);
+};
+
+export const blockLen = (torrent, pieceIndex, blockIndex) => {
+  const pieceLength = pieceLen(torrent, pieceIndex);
+  const lastPieceLength = pieceLength % BLOCK_LEN;
+  const lastPieceIndex = Math.floor(pieceLength / BLOCK_LEN);
+
+  return blockIndex === lastPieceIndex ? lastPieceLength : BLOCK_LEN;
+};
