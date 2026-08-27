@@ -8,7 +8,7 @@ export const buildHandShake = (torrent) => {
   //pstrlen
   buf.writeUint8(19, 0);
   //pstr
-  buf.write("BitTorrent Protocol", 1);
+  buf.write("BitTorrent protocol", 1);
   //reserved
   buf.writeUint32BE(0, 20);
   buf.writeUint32BE(0, 24);
@@ -112,7 +112,7 @@ export const buildPiece = (payload) => {
   buf.writeInt32BE(payload.index, 5);
   buf.writeInt32BE(payload.begin, 9);
 
-  payload.copy(buf, 13);
+  payload.block.copy(buf, 13);
 
   return buf;
 };
@@ -138,7 +138,7 @@ export const buildPort = (payload) => {
   //id
   buf.writeInt8(9, 4);
 
-  buf.writeInt16BE(payload, 5);
+  buf.writeUInt16BE(payload, 5);
 
   return buf;
 };

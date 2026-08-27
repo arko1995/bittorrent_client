@@ -108,7 +108,7 @@ function requestPiece(socket, pieces, queue) {
 
     if (pieces.needed(pieceBlock)) {
       socket.write(message.buildRequest(pieceBlock));
-      pieces.addRequested(pieceBlock);
+      pieces.addRequest(pieceBlock);
       break;
     }
   }

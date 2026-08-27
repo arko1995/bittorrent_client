@@ -4,7 +4,7 @@ export default class {
   constructor(torrent) {
     this.torrent = torrent;
     this.choked = true;
-    this.queue = [];
+    this._queue = [];
   }
 
   queue(pieceIndex) {

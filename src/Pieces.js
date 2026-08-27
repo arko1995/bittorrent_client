@@ -11,7 +11,7 @@ export default class {
       );
     }
     this._requested = buildPiecesArray();
-    this._received = buildPiecesArray;
+    this._received = buildPiecesArray();
   }
 
   addRequest(pieceBLock) {
@@ -21,14 +21,14 @@ export default class {
 
   addReceive(pieceBLock) {
     const blockIndex = pieceBLock.begin / tp.BLOCK_LEN;
-    this._requested[pieceBLock][blockIndex] = true;
+    this._requested[pieceBLock.index][blockIndex] = true;
   }
 
   needed(pieceBlock) {
     if (this._requested.every((blocks) => blocks.every((i) => i))) {
       this._requested = this._received.map((blocks) => blocks.slice());
     }
-    const blockIndex = pieceBlock.being / tp.BLOCK_LEN;
+    const blockIndex = pieceBlock.begin / tp.BLOCK_LEN;
     return !this._requested[pieceBlock.index][blockIndex];
   }
 
