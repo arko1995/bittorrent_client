@@ -3,7 +3,7 @@ import { Buffer } from "node:buffer";
 import * as tracker from "./tracker.js";
 import * as message from "./message.js";
 import Queue from "./Queue.js";
-import Pieces from "./pieces.js";
+import Pieces from "./Pieces.js";
 
 export default (torrent) => {
   tracker.getPeers(torrent, (peers) => {
@@ -89,9 +89,15 @@ function bitfieldHandler(socket, pieces, queue, payload) {
   if (queueEmpty) requestPiece(socket, pieces, queue);
 }
 
-function pieceHandler(payload, socket, requested, queue) {
-  queue.shift();
-  requestPiece(socket, requested, queue);
+function pieceHandler(socket, pieces, queue, torrent, pieceResp) {
+  pieces.addReceive(pieceResp);
+
+  if (pieces.isDone()) {
+    socket.end();
+    console.log("DONE");
+  } else {
+    requestPiece(socket, pieces, queue);
+  }
 }
 
 function requestPiece(socket, pieces, queue) {
