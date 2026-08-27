@@ -1,5 +1,4 @@
 import { getPeers } from "./src/tracker.js";
-
 import * as torrentParser from "./src/torrent-parser.js";
 import download from "./src/download.js";
 
