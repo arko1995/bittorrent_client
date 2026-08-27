@@ -21,7 +21,7 @@ export default class {
 
   addReceive(pieceBLock) {
     const blockIndex = pieceBLock.begin / tp.BLOCK_LEN;
-    this._requested[pieceBLock.index][blockIndex] = true;
+    this._received[pieceBLock.index][blockIndex] = true;
   }
 
   needed(pieceBlock) {

@@ -17,19 +17,19 @@ export default class {
         length: tp.blockLen(this.torrent, pieceIndex, i),
       };
 
-      this.queue.push(pieceBlock);
+      this._queue.push(pieceBlock);
     }
   }
 
   dequeue() {
-    return this.queue.shift();
+    return this._queue.shift();
   }
 
   peek() {
-    return this.queue[0];
+    return this._queue[0];
   }
 
   length() {
-    return this.queue.length;
+    return this._queue.length;
   }
 }

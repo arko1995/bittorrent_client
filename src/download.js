@@ -52,11 +52,11 @@ function msgHandler(msg, socket, pieces, queue) {
   else {
     const m = message.parse(msg);
 
-    if (m.id === 0) chokeHandler();
+    if (m.id === 0) chokeHandler(socket);
     if (m.id === 1) unChokeHandler(socket, pieces, queue);
-    if (m.id === 4) haveHandler(m.payload);
-    if (m.id === 5) bitfieldHandler(m.payload);
-    if (m.id === 7) pieceHandler(m.payload);
+    if (m.id === 4) haveHandler(socket, pieces, payload, queue);
+    if (m.id === 5) bitfieldHandler(socket, pieces, payload, queue);
+    if (m.id === 7) pieceHandler(socket, pieces, queue, torrent, pieceResp);
   }
 }
 
@@ -77,7 +77,7 @@ function haveHandler(socket, pieces, payload, queue) {
 }
 
 function bitfieldHandler(socket, pieces, queue, payload) {
-  const queueEmpty = queue.length === 0;
+  const queueEmpty = queue.length() === 0;
   payload.forEach((byte, i) => {
     for (let j = 0; j < 8; j++) {
       if (byte % 2) {
@@ -103,7 +103,7 @@ function pieceHandler(socket, pieces, queue, torrent, pieceResp) {
 function requestPiece(socket, pieces, queue) {
   if (queue.choked) return null;
 
-  while (queue.queue.length) {
+  while (queue.length) {
     const pieceBlock = queue.dequeue();
 
     if (pieces.needed(pieceBlock)) {
@@ -117,6 +117,6 @@ function requestPiece(socket, pieces, queue) {
 function isHandshake(msg) {
   return (
     msg.length === msg.readUInt8(0) + 49 &&
-    msg.toString("utf8", 1) === "BitTorrent protocol" //converts the entire bugger into string starting from offset 1
+    msg.toString("utf8", 1, 20) === "BitTorrent protocol" //converts the entire bugger into string starting from offset 1
   );
 }
