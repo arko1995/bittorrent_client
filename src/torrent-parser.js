@@ -37,10 +37,10 @@ export const pieceLen = (torrent, pieceIndex) => {
   const totalLength = Number(size(torrent).readBigUint64BE());
   const pieceLength = torrent.info["piece length"];
 
-  const lastPieceLength = totalLength % pieceLength;
-  const lastPieceIndex = Math.floor(totalLength / pieceLength);
+  const pieceStart = pieceIndex * pieceLength;
+  const remaining = totalLength - pieceStart;
 
-  return lastPieceIndex === pieceIndex ? lastPieceLength : pieceLength;
+  return Math.min(remaining, pieceLength);
 };
 
 export const blocksPerPiece = (torrent, pieceIndex) => {
@@ -51,8 +51,9 @@ export const blocksPerPiece = (torrent, pieceIndex) => {
 
 export const blockLen = (torrent, pieceIndex, blockIndex) => {
   const pieceLength = pieceLen(torrent, pieceIndex);
-  const lastPieceLength = pieceLength % BLOCK_LEN;
-  const lastPieceIndex = Math.floor(pieceLength / BLOCK_LEN);
 
-  return blockIndex === lastPieceIndex ? lastPieceLength : BLOCK_LEN;
+  const blockStart = blockIndex * BLOCK_LEN;
+  const remaining = pieceLength - blockStart;
+
+  return Math.min(BLOCK_LEN, remaining);
 };

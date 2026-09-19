@@ -52,7 +52,7 @@ function msgHandler(msg, socket, pieces, queue) {
   else {
     const m = message.parse(msg);
 
-    if (m.id === 0) chokeHandler(socket);
+    if (m.id === 0) chokeHandler(queue);
     if (m.id === 1) unChokeHandler(socket, pieces, queue);
     if (m.id === 4) haveHandler(socket, pieces, m.payload, queue);
     if (m.id === 5) bitfieldHandler(socket, pieces, m.payload, queue);
@@ -60,8 +60,8 @@ function msgHandler(msg, socket, pieces, queue) {
   }
 }
 
-function chokeHandler(socket) {
-  socket.end();
+function chokeHandler(queue) {
+  queue.choked = true;
 }
 
 function unChokeHandler(socket, pieces, queue) {
@@ -77,18 +77,23 @@ function haveHandler(socket, pieces, payload, queue) {
 }
 
 function bitfieldHandler(socket, pieces, queue, payload) {
+  const pieceCount = queue.torrent.info.pieces.length / 20;
   const queueEmpty = queue.length() === 0;
   payload.forEach((byte, i) => {
     for (let j = 0; j < 8; j++) {
+      const pieceIndex = i * 8 + j;
+
+      if (pieceIndex >= pieceCount) break;
+
       if (byte & (1 << (7 - j))) {
-        queue.queue(i * 8 + j);
+        queue.queue(pieceIndex);
       }
     }
   });
   if (queueEmpty) requestPiece(socket, pieces, queue);
 }
 
-function pieceHandler(socket, pieces, queue, torrent, pieceResp) {
+function pieceHandler(socket, pieces, queue, pieceResp) {
   pieces.addReceive(pieceResp);
 
   if (pieces.isDone()) {

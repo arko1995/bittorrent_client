@@ -144,7 +144,7 @@ export const buildPort = (payload) => {
 };
 
 export const parse = (msg) => {
-  const id = msg.length > 4 ? msg.readInt8(4) : null;
+  const id = msg.length > 4 ? msg.readUInt8(4) : null;
   let payload = msg.length > 5 ? msg.slice(5) : null;
 
   if (id === 6 || id === 7 || id === 8) {
@@ -155,11 +155,12 @@ export const parse = (msg) => {
       begin: payload.readInt32BE(4),
     };
 
-    payload[id === 7 ? "block" : "length"] = rest;
+    if (id === 7) payload.block = rest;
+    else payload.length = rest.readUInt32BE(0);
   }
 
   return {
-    size: msg.readInt32BE(0),
+    size: msg.readUInt32BE(0),
     id: id,
     payload: payload,
   };
