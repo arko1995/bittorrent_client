@@ -151,8 +151,8 @@ export const parse = (msg) => {
     const rest = payload.slice(8);
 
     payload = {
-      index: payload.readInt32BE(0),
-      begin: payload.readInt32BE(4),
+      index: payload.readUInt32BE(0),
+      begin: payload.readUInt32BE(4),
     };
 
     if (id === 7) payload.block = rest;
