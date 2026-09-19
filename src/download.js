@@ -54,9 +54,9 @@ function msgHandler(msg, socket, pieces, queue) {
 
     if (m.id === 0) chokeHandler(socket);
     if (m.id === 1) unChokeHandler(socket, pieces, queue);
-    if (m.id === 4) haveHandler(socket, pieces, payload, queue);
-    if (m.id === 5) bitfieldHandler(socket, pieces, payload, queue);
-    if (m.id === 7) pieceHandler(socket, pieces, queue, torrent, pieceResp);
+    if (m.id === 4) haveHandler(socket, pieces, m.payload, queue);
+    if (m.id === 5) bitfieldHandler(socket, pieces, m.payload, queue);
+    if (m.id === 7) pieceHandler(socket, pieces, queue, m.payload);
   }
 }
 
@@ -71,7 +71,7 @@ function unChokeHandler(socket, pieces, queue) {
 
 function haveHandler(socket, pieces, payload, queue) {
   const pieceIndex = payload.readUInt32BE(0);
-  const queueEmpty = queue.length === 0;
+  const queueEmpty = queue.length() === 0;
   queue.queue(pieceIndex);
   if (queueEmpty) requestPiece(socket, pieces, queue);
 }
@@ -80,9 +80,8 @@ function bitfieldHandler(socket, pieces, queue, payload) {
   const queueEmpty = queue.length() === 0;
   payload.forEach((byte, i) => {
     for (let j = 0; j < 8; j++) {
-      if (byte % 2) {
-        queue.queue(i * 8 + 7 - j);
-        byte = Math.floor(byte / 2);
+      if (byte & (1 << (7 - j))) {
+        queue.queue(i * 8 + j);
       }
     }
   });
@@ -103,7 +102,7 @@ function pieceHandler(socket, pieces, queue, torrent, pieceResp) {
 function requestPiece(socket, pieces, queue) {
   if (queue.choked) return null;
 
-  while (queue.length) {
+  while (queue.length()) {
     const pieceBlock = queue.dequeue();
 
     if (pieces.needed(pieceBlock)) {
